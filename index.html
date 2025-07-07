@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Strategic Communicator's Guide to AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Warm Neutral Harmony" - A calming palette using warm grays, beige, and soft blues to create a professional, academic, and focused learning environment. -->
+    <!-- Application Structure Plan: The SPA uses a single-page, vertical scrolling layout with a sticky top navigation bar. This structure was chosen over a multi-page or tabbed layout to create a seamless, linear learning journey that mimics reading a report but enhances it with non-linear exploration via the navigation. This encourages users to flow from foundational concepts to practical applications and ethics, while still allowing them to jump to any topic of interest instantly. This design prioritizes ease of navigation and a cohesive narrative flow, making complex information more digestible for the target audience of students and professionals. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info: Public vs. Expert AI Perception (Pew Data). Goal: Compare. Viz: Interactive Bar Chart. Interaction: Hover tooltips for precise data. Justification: A bar chart is the clearest way to show the stark contrast in opinions between the two groups. Library: Chart.js.
+        - Report Info: Machine Learning Types Comparison. Goal: Organize & Compare. Viz: Interactive Card/Tab System. Interaction: Clicking a tab reveals detailed content for that ML type. Justification: This transforms a static table into an engaging, user-driven exploration, focusing the user's attention on one concept at a time. Method: HTML/CSS/JS.
+        - Report Info: AI Models (Classification/Regression). Goal: Organize & Explain. Viz: Multi-card layout with icons and clear descriptions for each model type. Interaction: Click-to-expand for client-friendly explanations. Justification: Provides a clear, at-a-glance reference for the core AI model types, serving as a bridge between ML theory and practical applications. This was changed from an AI feature to a static feature for pedagogical control and reliability. Method: HTML/CSS/JS.
+        - Report Info: Real-world Case Studies (Nutella, Alibaba, etc.). Goal: Inform & Engage. Viz: Interactive Flip Cards. Interaction: Clicking a card reveals detailed analysis. Justification: This "reveal" interaction adds an element of discovery and neatly separates the high-level outcome from the deep-dive analysis. Method: HTML/CSS/JS.
+        - Report Info: Ethical Dilemmas. Goal: Inform & Reflect. Viz: Accordion-style layout. Interaction: Click to expand dilemma and see ethical analysis. Justification: Encourages active participation by prompting the user to consider the dilemma before seeing the expert breakdown. Method: HTML/CSS/JS.
+        - Gemini Feature 1: Ethical Scenario Generator. Goal: Provide dynamic, ongoing learning. Viz: Button + dynamically added accordion item. Interaction: User clicks button to generate a new ethical dilemma. Justification: Showcases AI's ability to create custom educational content.
+        - Gemini Feature 2: Audience Persona Generator. Goal: Demonstrate strategic planning with AI. Viz: New section with form fields. Interaction: User inputs product details, gets a rich audience persona, with an option to refine the output. Justification: Teaches a core strategic and iterative skill using AI.
+        - Gemini Feature 3: Social Media Advertising Tool. Goal: Showcase tactical ad copy creation. Viz: New section with interactive, expandable form fields. Interaction: User describes brand, selects platform, objective, persona, and tone to generate tailored ad copy, with an option to refine. Justification: Highly practical tool for demonstrating a full strategy-to-execution workflow.
+        - Gemini Feature 4: Public Relations Materials Generator. Goal: Demonstrate AI-assisted PR writing. Viz: New section with form fields for various PR document types. Interaction: User provides organizational context, selects content type, tone, and length to generate professional PR materials, with an option to refine. Justification: A robust tool for teaching and executing core PR functions.
+        - CONFIRMATION: NO SVG graphics used. NO Mermaid JS used.
+    -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f7f4; /* Warm Beige */
+            color: #4a4a4a; /* Dark Gray */
+        }
+        .nav-link {
+            transition: color 0.3s, border-color 0.3s;
+        }
+        .nav-link.active {
+            color: #3b82f6; /* Accent Blue */
+            border-bottom-color: #3b82f6;
+        }
+        .section-card {
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .section-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -2px rgb(0 0 0 / 0.1);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+        }
+        .flip-card { perspective: 1000px; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+        .flip-card.flipped .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.5rem; border-radius: 0.5rem; }
+        .flip-card-front { background-color: #e0e7ff; color: #3730a3; }
+        .flip-card-back { background-color: #f0f9ff; color: #075985; transform: rotateY(180deg); }
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-in-out;
+        }
+        .gemini-button {
+            background-color: #4f46e5;
+            color: white;
+            transition: background-color 0.3s;
+        }
+        .gemini-button:hover {
+            background-color: #4338ca;
+        }
+        .gemini-button:disabled {
+            background-color: #a5b4fc;
+            cursor: not-allowed;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header & Navigation -->
+    <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
+        <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex-shrink-0">
+                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">AI for Communicators</h1>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-4">
+                        <a href="#intro" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Introduction</a>
+                        <a href="#ml-types" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">ML Types</a>
+                        <a href="#ai-models" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">AI Models</a>
+                        <a href="#applications" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Applications</a>
+                        <a href="#content-creation" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Content Creation</a>
+                        <a href="#ethics" class="nav-link px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Ethics</a>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                     <button id="mobile-menu-button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                        <span class="sr-only">Open main menu</span>
+                        <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </nav>
+        <div id="mobile-menu" class="md:hidden hidden">
+            <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="#intro" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Introduction</a>
+                <a href="#ml-types" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">ML Types</a>
+                <a href="#ai-models" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">AI Models</a>
+                <a href="#applications" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Applications</a>
+                <a href="#content-creation" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Content Creation</a>
+                <a href="#ethics" class="block nav-link px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:text-blue-600 border-b-2 border-transparent">Ethics</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        
+        <section id="intro" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">Foundations of AI in Modern Communication</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">AI has evolved from a theoretical concept to an essential tool for communicators. This guide demystifies AI, exploring how it's reshaping advertising, PR, and marketing through data, algorithms, and computation.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8 text-center">
+                <div class="section-card p-6">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600"><span>📊</span></div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Fueled by Data</h3>
+                </div>
+                <div class="section-card p-6">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600"><span>⚙️</span></div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Powered by Algorithms</h3>
+                </div>
+                <div class="section-card p-6">
+                    <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600"><span>⚡️</span></div>
+                    <h3 class="mt-4 text-xl font-semibold text-gray-800">Enabled by Computation</h3>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="perception" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">The Perception-Reality Gap</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">A key challenge for communicators is the disconnect between public skepticism and professional enthusiasm for AI. This chart, based on Pew Research data, visualizes this gap.</p>
+            </div>
+            <div class="section-card p-4 md:p-8">
+                <div class="chart-container"><canvas id="perceptionChart"></canvas></div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="ml-types" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">The Engine Room: Understanding Machine Learning</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">Machine Learning (ML) is the engine powering most AI tools. Explore the four main types to understand how AI learns and makes decisions. Click each tab to discover how it works.</p>
+            </div>
+            <div class="section-card p-4 sm:p-6 md:p-8">
+                <div class="mb-4 border-b border-gray-200">
+                    <ul class="flex flex-wrap -mb-px text-sm font-medium text-center" id="ml-tabs" role="tablist"></ul>
+                </div>
+                <div id="ml-tab-content"></div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="ai-models" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">The Toolkit: A Closer Look at AI Models</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">While ML types define the learning strategy, specific models are the tools that get the job done. Understanding the difference between classification and regression is key to picking the right tool.</p>
+            </div>
+            <div id="ai-models-content" class="space-y-12"></div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+        
+        <section id="applications" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">AI in Practice: Models & Applications</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">From predicting customer behavior to personalizing content at scale, AI models are transforming communication strategies. Explore landmark campaigns and see how theory becomes impact. Click the cards to flip them.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="content-creation" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">✨ AI Content Creation Suite</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">Augment your strategic workflow with AI. First, define your audience, then generate tailored ad copy or PR materials in seconds.</p>
+            </div>
+            <div class="space-y-12">
+                <div id="persona-generator" class="section-card p-6 md:p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">1. AI Audience Persona Generator</h3>
+                    <p class="text-center text-gray-600 mb-6">Start by defining your audience. Provide a product and target demographic to build a concise, actionable persona (100-150 words).</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start max-w-4xl mx-auto">
+                        <div class="space-y-4">
+                            <div>
+                                <label for="persona-product" class="block text-sm font-medium text-gray-700">Product/Brand</label>
+                                <input type="text" id="persona-product" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., A new vegan protein bar">
+                            </div>
+                            <div>
+                                <label for="persona-demographic" class="block text-sm font-medium text-gray-700">Target Demographic</label>
+                                <input type="text" id="persona-demographic" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="e.g., Fitness-conscious millennials">
+                            </div>
+                            <button id="generate-persona-button" class="w-full gemini-button font-bold py-2.5 px-4 rounded-md flex items-center justify-center">
+                                <span>Generate Persona</span>
+                            </button>
+                        </div>
+                        <div class="relative">
+                            <div id="persona-loader" class="hidden absolute inset-0 bg-white/50 flex items-center justify-center"><div class="loader"></div></div>
+                            <div id="persona-output" class="h-full p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 overflow-y-auto" style="min-height: 250px;">Your generated persona will appear here...</div>
+                            <div id="persona-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700"></div>
+                        </div>
+                    </div>
+                     <div id="refine-persona-container" class="hidden mt-6 pt-6 border-t border-dashed">
+                        <h4 class="font-semibold text-center text-gray-700 mb-2">Refine With AI</h4>
+                        <textarea id="refine-persona-input" class="w-full p-2 border rounded-md" rows="2" placeholder="e.g., Make it sound more aspirational. Focus on the pain point of finding healthy snacks."></textarea>
+                        <button id="refine-persona-button" class="w-full mt-2 gemini-button font-bold py-2 px-4 rounded-md">Refine</button>
+                    </div>
+                </div>
+                
+                <div id="social-ads" class="section-card p-6 md:p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">2. Social Media Advertising</h3>
+                     <p class="text-center text-gray-600 mb-6">Next, create the ad. Use the persona you just generated to create tailored ad copy for a specific platform and objective.</p>
+                    <div class="max-w-4xl mx-auto">
+                        <div id="social-ad-accordion" class="space-y-2">
+                             <!-- Brand/Product -->
+                             <div>
+                                <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 rounded-lg flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">1. Describe Brand and Product</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border border-t-0 rounded-b-lg">
+                                        <textarea id="ad-brand-product" class="w-full p-2 border rounded-md" rows="3" placeholder="e.g., 'SustainaKicks' - a new line of stylish sneakers made from recycled ocean plastics."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Platform -->
+                            <div>
+                                <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 rounded-lg flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">2. Select Platform</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border border-t-0 rounded-b-lg">
+                                        <select id="ad-platform" class="w-full p-2 border rounded-md">
+                                            <option>Instagram</option>
+                                            <option>Facebook</option>
+                                            <option>Twitter/X</option>
+                                            <option>LinkedIn</option>
+                                            <option>Threads</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Objective -->
+                            <div>
+                                <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 rounded-lg flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">3. Choose Campaign Objective</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border border-t-0 rounded-b-lg">
+                                        <select id="ad-objective" class="w-full p-2 border rounded-md">
+                                            <option>Brand Awareness</option>
+                                            <option>Lead Generation</option>
+                                            <option>Engagement</option>
+                                            <option>Website Traffic</option>
+                                            <option>Conversions</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Persona -->
+                            <div>
+                                <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 rounded-lg flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">4. Paste Audience Persona</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border border-t-0 rounded-b-lg">
+                                        <textarea id="ad-persona" class="w-full p-2 border rounded-md" rows="4" placeholder="Paste the persona generated in the previous step..."></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Tone -->
+                            <div>
+                                <button class="accordion-button w-full text-left p-4 bg-gray-100 hover:bg-gray-200 rounded-lg flex justify-between items-center">
+                                    <span class="font-semibold text-gray-700">5. Select Tone/Style</span>
+                                    <span class="transform transition-transform duration-300">▼</span>
+                                </button>
+                                <div class="accordion-content">
+                                    <div class="p-4 border border-t-0 rounded-b-lg">
+                                        <select id="ad-tone" class="w-full p-2 border rounded-md">
+                                            <option>Professional</option>
+                                            <option>Witty</option>
+                                            <option>Urgent</option>
+                                            <option>Friendly</option>
+                                            <option>Inspirational</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <button id="generate-ad-button" class="w-full mt-6 gemini-button font-bold py-2.5 px-4 rounded-md flex items-center justify-center">
+                            <span>Generate Ad Copy</span>
+                        </button>
+                        <div class="relative mt-6">
+                            <div id="ad-loader" class="hidden absolute inset-0 bg-white/50 flex items-center justify-center"><div class="loader"></div></div>
+                            <div id="ad-output" class="h-full p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 overflow-y-auto" style="min-height: 200px;">Your generated ad copy will appear here...</div>
+                            <div id="ad-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700"></div>
+                        </div>
+                        <div id="refine-ad-container" class="hidden mt-6 pt-6 border-t border-dashed">
+                            <h4 class="font-semibold text-center text-gray-700 mb-2">Refine With AI</h4>
+                            <textarea id="refine-ad-input" class="w-full p-2 border rounded-md" rows="2" placeholder="e.g., Make the headline shorter. Add a question to the body copy."></textarea>
+                            <button id="refine-ad-button" class="w-full mt-2 gemini-button font-bold py-2 px-4 rounded-md">Refine</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="pr-materials" class="section-card p-6 md:p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">3. Public Relations Materials</h3>
+                     <p class="text-center text-gray-600 mb-6">Generate foundational drafts for various PR documents based on your strategic inputs.</p>
+                    <div class="max-w-4xl mx-auto">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+                             <div class="space-y-4">
+                                <div>
+                                    <label for="pr-org-info" class="block text-sm font-medium text-gray-700">Organization & Key Information</label>
+                                    <textarea id="pr-org-info" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" rows="4" placeholder="Describe your organization and the core message or event."></textarea>
+                                </div>
+                                <div>
+                                    <label for="pr-content-type" class="block text-sm font-medium text-gray-700">PR Content Type</label>
+                                    <select id="pr-content-type" class="mt-1 block w-full p-2 border rounded-md">
+                                        <option>Press Release</option>
+                                        <option>Pitch Letter/Email</option>
+                                        <option>Media Advisory/Alert</option>
+                                        <option>Fact Sheet</option>
+                                        <option>Bylined Article / Op-Ed</option>
+                                        <option>Speech / Talking Points</option>
+                                        <option>Company Blog Post</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="pr-tone" class="block text-sm font-medium text-gray-700">Tone/Style</label>
+                                    <select id="pr-tone" class="mt-1 block w-full p-2 border rounded-md">
+                                        <option>Formal & Professional</option>
+                                        <option>Persuasive & Enthusiastic</option>
+                                        <option>Informative & Factual</option>
+                                        <option>Urgent & Direct</option>
+                                        <option>Inspirational & Visionary</option>
+                                    </select>
+                                </div>
+                                 <div>
+                                    <label for="pr-length" class="block text-sm font-medium text-gray-700">Approximate Length (in words)</label>
+                                    <input type="text" id="pr-length" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" placeholder="e.g., 250">
+                                </div>
+                                <button id="generate-pr-button" class="w-full gemini-button font-bold py-2.5 px-4 rounded-md flex items-center justify-center">
+                                    <span>Generate PR Material</span>
+                                </button>
+                            </div>
+                            <div class="relative">
+                                <div id="pr-loader" class="hidden absolute inset-0 bg-white/50 flex items-center justify-center"><div class="loader"></div></div>
+                                <div id="pr-output" class="h-full p-4 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-700 overflow-y-auto" style="min-height: 400px;">Your generated PR material will appear here...</div>
+                                <div id="pr-error" class="hidden mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700"></div>
+                            </div>
+                        </div>
+                        <div id="refine-pr-container" class="hidden mt-6 pt-6 border-t border-dashed">
+                            <h4 class="font-semibold text-center text-gray-700 mb-2">Refine With AI</h4>
+                            <textarea id="refine-pr-input" class="w-full p-2 border rounded-md" rows="2" placeholder="e.g., Add a quote from the CEO. Make the call to action stronger."></textarea>
+                            <button id="refine-pr-button" class="w-full mt-2 gemini-button font-bold py-2 px-4 rounded-md">Refine</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <hr class="my-16 border-gray-200">
+
+        <section id="ethics" class="scroll-mt-20">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">The Ethical Communicator</h2>
+                <p class="mt-4 text-lg leading-8 text-gray-600 max-w-3xl mx-auto">With great power comes great responsibility. An effective AI strategy is inseparable from an ethical one. Explore key principles and common dilemmas communicators face in the age of AI.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="section-card p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">A Framework for Ethical AI</h3>
+                    <ul id="ethical-pillars" class="space-y-4"></ul>
+                </div>
+                <div class="section-card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Applied Ethics: Scenarios</h3>
+                    </div>
+                    <div id="ethical-scenarios" class="space-y-4"></div>
+                    <div class="mt-6 text-center">
+                        <button id="scenario-generator-button" class="gemini-button font-bold py-2 px-6 rounded-md flex items-center justify-center w-full sm:w-auto mx-auto">
+                           <span>✨ Generate New Scenario</span>
+                        </button>
+                        <div id="scenario-loader" class="hidden mx-auto mt-4 loader"></div>
+                         <div id="scenario-error" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 hidden"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-white border-t border-gray-200">
+        <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-gray-500">
+            <p>© 2025 Strategic Communicator's AI Guide.</p>
+        </div>
+    </footer>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            
+            const appData = {
+                perceptionData: {
+                    labels: ['AI will personally help more than harm', 'AI will lead to fewer jobs in 20 years'],
+                    datasets: [{label: 'Public Opinion', data: [43, 64], backgroundColor: 'rgba(59, 130, 246, 0.6)', borderColor: 'rgba(59, 130, 246, 1)', borderWidth: 1}, {label: 'AI Expert Opinion', data: [76, 39], backgroundColor: 'rgba(239, 68, 68, 0.6)', borderColor: 'rgba(239, 68, 68, 1)', borderWidth: 1}]
+                },
+                mlTypes: [{id: 'supervised', name: 'Supervised Learning', icon: '🎓', description: 'Learning from labeled data, like a student with an answer key. The model is trained on a dataset where the correct answers are already known.', question: 'Will this customer churn?', application: 'Customer Churn Prediction, Lead Scoring, Ad CTR Prediction.'}, {id: 'unsupervised', name: 'Unsupervised Learning', icon: '🧩', description: 'Discovering hidden patterns in unlabeled data. The algorithm explores data to find inherent structures on its own.', question: 'What are my natural audience groups?', application: 'Customer Segmentation, Market Basket Analysis, Anomaly Detection.'}, {id: 'semi-supervised', name: 'Semi-Supervised Learning', icon: '🧬', description: 'A hybrid approach using a small amount of labeled data to bootstrap learning on a vast amount of unlabeled data. It\'s the best of both worlds.', question: 'How can I classify massive user feedback with limited resources?', application: 'User-Generated Content Classification, Speech Recognition.'}, {id: 'reinforcement', name: 'Reinforcement Learning', icon: '🏆', description: 'Learning through trial and error by interacting with a dynamic environment to maximize a cumulative reward.', question: 'What is the optimal ad bid right now to maximize long-term ROI?', application: 'Real-Time Ad Bidding, Hyper-Personalized Recommendations.'}],
+                aiModels: [
+                    {
+                        id: 'binary',
+                        type: 'Binary Classification',
+                        icon: '✔️',
+                        description: 'Models that make a "Yes or No" decision, sorting data into one of two possible categories. This is the workhorse for many marketing predictions.',
+                        scenario: {
+                            title: 'Application: Ad Click Prediction',
+                            problem: 'An advertiser needs to predict if a user will click an ad to optimize bidding strategy and ad spend in real-time.',
+                            solution: 'A logistic regression model is trained on historical ad impression data (user demographics, online behavior) to predict a binary outcome: "Clicked" (1) or "Not Clicked" (0).'
+                        },
+                        clientExplanation: "Think of this as a simple 'yes or no' tool. We can use it to predict whether a customer will take a specific action, like clicking an ad or making a purchase. This allows us to focus our budget on the audience most likely to respond, dramatically improving our campaign's efficiency and ROI."
+                    },
+                    {
+                        id: 'multiclass',
+                        type: 'Multi-Class Classification',
+                        icon: '🗂️',
+                        description: 'Models that assign data to one of three or more predefined categories. Essential for organizing and triaging large volumes of information.',
+                        scenario: {
+                            title: 'Application: Customer Feedback Analysis',
+                            problem: 'A company needs to automatically sort thousands of daily customer complaints into relevant departments (e.g., Billing, Shipping, Technical Support).',
+                            solution: 'A text classification model (like Naive Bayes or SVM) is trained on manually labeled feedback to automatically categorize new, incoming messages, enabling faster response times and trend analysis.'
+                        },
+                        clientExplanation: "This model acts like an intelligent sorting system. It can automatically categorize thousands of customer comments or support tickets into specific topics, like 'shipping issues' or 'positive feedback.' This helps us spot trends instantly and route issues to the right team, so we can respond faster and more effectively."
+                    },
+                    {
+                        id: 'regression',
+                        type: 'Regression',
+                        icon: '📈',
+                        description: 'Models that predict a continuous numerical value, answering "how much?" instead of "which category?". Crucial for forecasting and financial planning.',
+                        scenario: {
+                            title: 'Application: Predicting Customer Lifetime Value (CLV)',
+                            problem: 'A business wants to shift focus from single transactions to long-term profitability by estimating the total future value of each customer.',
+                            solution: 'A multiple linear regression model uses customer data (Recency, Frequency, Monetary value) to predict their future CLV, allowing for strategic budget allocation and personalized retention efforts.'
+                        },
+                        clientExplanation: "This is our forecasting tool. Instead of just sorting things, it answers 'how much?'. We can use it to predict key numbers, like a customer's total future spending (their lifetime value). This lets us identify our most valuable customers and invest in keeping them loyal."
+                    }
+                ],
+                applications: [{brand: 'Nutella', initiative: '"Unica" Campaign', outcome: 'Mass personalization using generative AI to create 7 million unique jar labels.', details: 'A human team conceived the creative strategy of celebrating individuality. An AI algorithm then executed this vision at scale, generating unique designs based on a dozen core patterns. All 7 million jars sold out almost immediately.'}, {brand: 'Alibaba', initiative: 'Real-Time Ad Bidding', outcome: 'Achieved a 340% ROI using reinforcement learning for ad auctions.', details: 'An RL-powered bidding system treated each ad auction as a step in a dynamic game, learning a policy to maximize campaign ROI, not just single bids. It massively outperformed manual strategies with the same budget.'}, {brand: 'Netflix', initiative: 'Personalized Recommendations', outcome: 'Drives over $1B in annual value through increased user retention.', details: 'Using a combination of supervised and reinforcement learning, Netflix analyzes viewing history, ratings, and user behavior to create a highly personalized content feed, keeping users engaged and subscribed.'}, {brand: 'Spotify', initiative: '"Wrapped" Campaign', outcome: 'Creates viral marketing and deep brand loyalty through data analysis.', details: 'Using unsupervised learning to analyze listening habits, Spotify generates personalized year-in-review summaries that are highly shareable, turning individual user data into a global marketing event.'}, {brand: 'Mosaic Data Science', initiative: 'Retail Energy Customer Segmentation', outcome: 'Identified 1,639 new high-value zip codes for targeted marketing.', details: 'Used unsupervised clustering to segment customers based on transactional behavior. They discovered that ~25% of customers generated ~60% of revenue, and then used this insight to find new, lookalike customers.'}, {brand: 'Coca-Cola', initiative: '"Create Real Magic"', outcome: 'High user engagement through co-creation with generative AI.', details: 'Invited consumers to use AI tools to create original artwork featuring Coca-Cola\'s iconic assets. This turned passive consumers into active creators, fostering a deeper brand connection.'}],
+                ethicalPillars: [{name: 'Honesty & Transparency', icon: '🤝', description: 'Commitment to truth. Practitioners must validate AI-generated information for accuracy and disclose AI use where it could impact public perception.'}, {name: 'Fairness & Equity', icon: '⚖️', description: 'Actively monitor AI systems for bias to ensure they do not lead to discriminatory outcomes against protected groups. Human oversight is essential.'}, {name: 'Privacy & Confidentiality', icon: '🔒', description: 'Safeguard confidential client and consumer data. Avoid inputting sensitive information into public, unsecured AI platforms.'}, {name: 'Accountability & Expertise', icon: '🧠', description: 'The human practitioner, not the algorithm, is ultimately accountable for the outcomes. Use expertise and judgment as the final check.'}],
+                ethicalScenarios: [{title: 'The Biased Segmentation Model', dilemma: 'An AI model identifies a "low-value" customer segment that ROI analysis suggests excluding from marketing. However, this segment disproportionately consists of a protected demographic group. Is it ethical to proceed?', analysis: 'The principle of Fairness is paramount. Even if statistically "correct," implementing a strategy that systematically excludes a protected group is discriminatory. The ethical response is to challenge the model, investigate the data for bias, and refuse to deploy a harmful strategy.'}, {title: 'The Generative AI Press Release', dilemma: 'Under a tight deadline, a team uses AI to draft a press release. The AI "hallucinates" a plausible but incorrect technical fact. A junior member doesn\'t verify it. Should it be sent?', analysis: 'The principles of Honesty and Expertise demand rigorous fact-checking. The practitioner is responsible for the accuracy of all disseminated information. Spreading misinformation, even if unintentional, erodes trust and damages reputation.'}, {title: 'The "Creepy" Advertisement', dilemma: 'An AI accurately predicts a user is pregnant based on her browsing data and starts serving her hyper-specific maternity ads before she has told anyone. The ads are effective but feel like a massive privacy violation. Is this good practice?', analysis: 'This highlights the tension between personalization and privacy. While technically effective, it crosses an ethical boundary, feeling intrusive rather than helpful. An ethical approach requires transparency in data use and a focus on enhancing user experience, not making users feel surveilled.'}]
+            };
+
+            const setupNavigation = () => {
+                const navLinks = document.querySelectorAll('.nav-link');
+                const sections = document.querySelectorAll('main section');
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            navLinks.forEach(link => {
+                                link.classList.remove('active');
+                                if (link.getAttribute('href').substring(1) === entry.target.id) {
+                                    link.classList.add('active');
+                                }
+                            });
+                        }
+                    });
+                }, { rootMargin: '-30% 0px -70% 0px' });
+                sections.forEach(section => observer.observe(section));
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const mobileMenu = document.getElementById('mobile-menu');
+                mobileMenuButton.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+                navLinks.forEach(link => {
+                    link.addEventListener('click', () => {
+                       if (!mobileMenu.classList.contains('hidden')) mobileMenu.classList.add('hidden');
+                    });
+                });
+            };
+            
+            const renderPerceptionChart = () => {
+                const ctx = document.getElementById('perceptionChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar', data: appData.perceptionData,
+                    options: { responsive: true, maintainAspectRatio: false, plugins: { title: { display: true, text: 'Public vs. AI Expert Views (Source: Pew Research)', font: { size: 16 }, color: '#334155' }, tooltip: { callbacks: { label: (c) => `${c.dataset.label||''}: ${c.parsed.y!==null?c.parsed.y+'%':''}` } } }, scales: { y: { beginAtZero: true, max: 100, ticks: { callback: (v) => v + '%' } } } }
+                });
+            };
+
+            const renderMLTypes = () => {
+                const tabsContainer = document.getElementById('ml-tabs');
+                const contentContainer = document.getElementById('ml-tab-content');
+                appData.mlTypes.forEach((type, index) => {
+                    tabsContainer.innerHTML += `<li class="mr-2" role="presentation"><button class="inline-block p-4 border-b-2 rounded-t-lg" id="${type.id}-tab" data-tabs-target="#${type.id}" type="button" role="tab" aria-controls="${type.id}" aria-selected="${index === 0}">${type.icon} ${type.name}</button></li>`;
+                    contentContainer.innerHTML += `<div class="${index !== 0 ? 'hidden' : ''} p-4 rounded-lg bg-gray-50" id="${type.id}" role="tabpanel" aria-labelledby="${type.id}-tab"><h3 class="text-xl font-bold text-gray-800">${type.name}</h3><p class="mt-2 text-gray-600">${type.description}</p><div class="mt-4 pt-4 border-t border-gray-200 space-y-2"><p class="font-semibold text-gray-700">Key Question Answered:</p><p class="text-blue-700 bg-blue-100 rounded-md p-2 italic">"${type.question}"</p><p class="font-semibold text-gray-700 pt-2">Primary Applications:</p><p class="text-gray-600">${type.application}</p></div></div>`;
+                });
+                const tabButtons = document.querySelectorAll('[data-tabs-target]');
+                tabButtons.forEach(button => {
+                    button.addEventListener('click', () => {
+                        const targetId = button.getAttribute('data-tabs-target');
+                        document.querySelectorAll('[role="tabpanel"]').forEach(p => p.classList.add('hidden'));
+                        document.querySelector(targetId).classList.remove('hidden');
+                        tabButtons.forEach(btn => {
+                            btn.setAttribute('aria-selected', 'false');
+                            btn.classList.remove('text-blue-600', 'border-blue-600');
+                            btn.classList.add('hover:text-gray-600', 'hover:border-gray-300');
+                        });
+                        button.setAttribute('aria-selected', 'true');
+                        button.classList.add('text-blue-600', 'border-blue-600');
+                    });
+                });
+                if (tabButtons.length > 0) {
+                    tabButtons[0].classList.add('text-blue-600', 'border-blue-600');
+                    tabButtons[0].classList.remove('hover:text-gray-600', 'hover:border-gray-300');
+                }
+            };
+
+            const renderAIModels = () => {
+                const container = document.getElementById('ai-models-content');
+                appData.aiModels.forEach(model => {
+                    const modelCard = document.createElement('div');
+                    modelCard.className = 'section-card p-6 md:p-8';
+                    modelCard.innerHTML = `
+                        <div class="flex items-center mb-4">
+                            <span class="text-3xl mr-4">${model.icon}</span>
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800">${model.type}</h3>
+                                <p class="text-gray-600">${model.description}</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-6 border-t border-gray-200">
+                            <h4 class="font-bold text-lg text-gray-700">${model.scenario.title}</h4>
+                            <div class="mt-2 text-gray-600 space-y-2">
+                                <p><strong class="text-gray-800">The Problem:</strong> ${model.scenario.problem}</p>
+                                <p><strong class="text-gray-800">The AI Solution:</strong> ${model.scenario.solution}</p>
+                            </div>
+                        </div>
+                        <div class="mt-6 pt-4 border-t border-dashed border-gray-300 space-y-2">
+                            <button class="accordion-button w-full text-left p-2 bg-indigo-100 hover:bg-indigo-200 rounded-lg flex justify-between items-center">
+                                <span class="font-semibold text-indigo-800">View Client-Friendly Explanation</span>
+                                <span class="transform transition-transform duration-300 text-indigo-800">▼</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-gray-700">
+                                    ${model.clientExplanation}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    container.appendChild(modelCard);
+                });
+            };
+
+            const renderApplications = () => {
+                const container = document.querySelector('#applications .grid');
+                appData.applications.forEach(app => {
+                    const card = document.createElement('div');
+                    card.className = 'flip-card h-64 bg-transparent cursor-pointer';
+                    card.innerHTML = `<div class="flip-card-inner"><div class="flip-card-front"><h3 class="text-2xl font-bold">${app.brand}</h3><p class="mt-2 text-lg">${app.initiative}</p><p class="mt-4 font-semibold text-indigo-800">${app.outcome}</p></div><div class="flip-card-back text-sm"><p>${app.details}</p></div></div>`;
+                    card.addEventListener('click', () => card.classList.toggle('flipped'));
+                    container.appendChild(card);
+                });
+            };
+
+            const renderEthicalPillars = () => {
+                const container = document.getElementById('ethical-pillars');
+                appData.ethicalPillars.forEach(pillar => {
+                    container.innerHTML += `<li class="flex items-start"><div class="flex-shrink-0 h-10 w-10 flex items-center justify-center bg-blue-100 text-blue-600 rounded-lg text-xl">${pillar.icon}</div><div class="ml-4"><h4 class="text-lg font-semibold text-gray-800">${pillar.name}</h4><p class="mt-1 text-gray-600">${pillar.description}</p></div></li>`;
+                });
+            };
+
+            const addAccordionListener = (button) => {
+                 button.addEventListener('click', () => {
+                    const content = button.nextElementSibling;
+                    const icon = button.querySelector('span:last-child');
+                    const isOpening = !content.style.maxHeight;
+                    
+                    const accordionGroup = button.closest('.space-y-12, .space-y-2');
+                    if (accordionGroup) {
+                        accordionGroup.querySelectorAll('.accordion-content').forEach(c => {
+                            if (c !== content) {
+                                c.style.maxHeight = null;
+                                const otherIcon = c.previousElementSibling.querySelector('span:last-child');
+                                if(otherIcon) otherIcon.style.transform = 'rotate(0deg)';
+                            }
+                        });
+                    }
+
+                    if (isOpening) {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                        if(icon) icon.style.transform = 'rotate(180deg)';
+                    } else {
+                        content.style.maxHeight = null;
+                        if(icon) icon.style.transform = 'rotate(0deg)';
+                    }
+                });
+            };
+
+            const createScenarioElement = (scenario) => {
+                const item = document.createElement('div');
+                item.className = 'border-b border-gray-200 pb-4';
+                item.innerHTML = `
+                    <button class="accordion-button w-full text-left flex justify-between items-center focus:outline-none p-2">
+                        <span class="font-semibold text-gray-700">${scenario.title}</span>
+                        <span class="transform transition-transform duration-300">▼</span>
+                    </button>
+                    <div class="accordion-content mt-2">
+                        <div class="text-gray-600 p-4 bg-gray-50 rounded-lg">
+                            <p class="font-bold">Dilemma:</p>
+                            <p class="mb-2 italic">${scenario.dilemma}</p>
+                            <p class="font-bold border-t pt-2 mt-2">Ethical Analysis:</p>
+                            <p>${scenario.analysis}</p>
+                        </div>
+                    </div>
+                `;
+                addAccordionListener(item.querySelector('.accordion-button'));
+                return item;
+            };
+
+            const renderEthicalScenarios = () => {
+                const container = document.getElementById('ethical-scenarios');
+                appData.ethicalScenarios.forEach(scenario => {
+                    container.appendChild(createScenarioElement(scenario));
+                });
+            };
+
+            // Gemini API Integration
+            let lastPersonaOutput = '';
+            let lastAdOutput = '';
+            let lastPROutput = '';
+
+            const callGemini = async (prompt, generationConfig = null) => {
+                const payload = { prompt, generationConfig };
+                const response = await fetch('/.netlify/functions/gemini-proxy', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.text();
+                    throw new Error(`API Error: ${response.statusText} - ${errorBody}`);
+                }
+                
+                const result = await response.json();
+                if (result.text) {
+                    return result.text;
+                }
+                throw new Error('No content received from API.');
+            };
+
+            const generateSocialAd = async () => {
+                const brandProduct = document.getElementById('ad-brand-product').value;
+                const platform = document.getElementById('ad-platform').value;
+                const objective = document.getElementById('ad-objective').value;
+                const persona = document.getElementById('ad-persona').value;
+                const tone = document.getElementById('ad-tone').value;
+                const button = document.getElementById('generate-ad-button');
+                const loader = document.getElementById('ad-loader');
+                const outputDiv = document.getElementById('ad-output');
+                const errorDiv = document.getElementById('ad-error');
+                const refineContainer = document.getElementById('refine-ad-container');
+
+                if (!brandProduct.trim() || !persona.trim()) {
+                    errorDiv.textContent = 'Please describe the brand/product and paste the audience persona.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                button.disabled = true;
+                loader.classList.remove('hidden');
+                outputDiv.innerHTML = 'Your generated ad copy will appear here...';
+                errorDiv.classList.add('hidden');
+                refineContainer.classList.add('hidden');
+
+                const prompt = `You are an expert social media advertiser. Create compelling ad copy for the following scenario. The output should be formatted as simple HTML.
+                - **Brand/Product:** ${brandProduct}
+                - **Platform:** ${platform}
+                - **Campaign Objective:** ${objective}
+                - **Target Persona:** ${persona}
+                - **Tone/Style:** ${tone}
+
+                Generate the following components:
+                1.  **Headline:** A short, attention-grabbing headline.
+                2.  **Body Copy:** The main text of the ad.
+                3.  **Call to Action (CTA):** A clear and compelling instruction for the user.
+                Include platform-appropriate hashtags.`;
+
+                try {
+                    const resultHtml = await callGemini(prompt);
+                    outputDiv.innerHTML = resultHtml;
+                    lastAdOutput = resultHtml;
+                    refineContainer.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error generating social ad:", error);
+                    errorDiv.textContent = 'Sorry, an error occurred. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    loader.classList.add('hidden');
+                }
+            };
+
+            const refineSocialAd = async () => {
+                const instructions = document.getElementById('refine-ad-input').value;
+                const button = document.getElementById('refine-ad-button');
+                const loader = document.getElementById('ad-loader');
+                const outputDiv = document.getElementById('ad-output');
+                const errorDiv = document.getElementById('ad-error');
+
+                if (!instructions.trim() || !lastAdOutput) {
+                    errorDiv.textContent = 'Please provide refinement instructions.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                button.disabled = true;
+                loader.classList.remove('hidden');
+                errorDiv.classList.add('hidden');
+
+                const prompt = `You are an expert social media advertiser. Refine the following ad copy based on the user's instructions.
+                
+                **Original Ad Copy:**
+                ${lastAdOutput}
+
+                **User's Instructions:**
+                "${instructions}"
+
+                Generate the new, refined version of the ad copy as simple HTML.`;
+
+                 try {
+                    const resultHtml = await callGemini(prompt);
+                    outputDiv.innerHTML = resultHtml;
+                    lastAdOutput = resultHtml; // Update the last output for further refinement
+                } catch (error) {
+                    console.error("Error refining social ad:", error);
+                    errorDiv.textContent = 'Sorry, an error occurred during refinement. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    loader.classList.add('hidden');
+                }
+            };
+
+             const generatePersona = async () => {
+                const product = document.getElementById('persona-product').value;
+                const demographic = document.getElementById('persona-demographic').value;
+                const button = document.getElementById('generate-persona-button');
+                const loader = document.getElementById('persona-loader');
+                const outputDiv = document.getElementById('persona-output');
+                const errorDiv = document.getElementById('persona-error');
+                const refineContainer = document.getElementById('refine-persona-container');
+
+                if (!product.trim() || !demographic.trim()) {
+                    errorDiv.textContent = 'Please fill out all fields.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                button.disabled = true;
+                loader.classList.remove('hidden');
+                outputDiv.innerHTML = 'Your generated persona will appear here...';
+                errorDiv.classList.add('hidden');
+                refineContainer.classList.add('hidden');
+
+                const prompt = `You are a marketing strategist. Create a detailed audience persona for a campaign. The entire response must be between 100 and 150 words.
+                - Product/Brand: ${product}
+                - Target Demographic: ${demographic}
+
+                Structure the response as simple HTML. Give the persona a name. Include sections for: Demographics, Motivations & Goals, Pain Points & Challenges, and Preferred Communication Channels. Use headings and lists.`;
+
+                try {
+                    const resultHtml = await callGemini(prompt);
+                    outputDiv.innerHTML = resultHtml;
+                    lastPersonaOutput = resultHtml;
+                    refineContainer.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error generating persona:", error);
+                    errorDiv.textContent = 'Sorry, an error occurred. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    loader.classList.add('hidden');
+                }
+            };
+
+            const refinePersona = async () => {
+                const instructions = document.getElementById('refine-persona-input').value;
+                const button = document.getElementById('refine-persona-button');
+                const loader = document.getElementById('persona-loader');
+                const outputDiv = document.getElementById('persona-output');
+                const errorDiv = document.getElementById('persona-error');
+
+                if (!instructions.trim() || !lastPersonaOutput) {
+                    errorDiv.textContent = 'Please provide refinement instructions.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                button.disabled = true;
+                loader.classList.remove('hidden');
+                errorDiv.classList.add('hidden');
+
+                const prompt = `You are a marketing strategist. Refine the following audience persona based on the user's instructions. Keep the total length between 100 and 150 words.
+                
+                **Original Persona:**
+                ${lastPersonaOutput}
+
+                **User's Instructions:**
+                "${instructions}"
+
+                Generate the new, refined version of the persona as simple HTML.`;
+
+                 try {
+                    const resultHtml = await callGemini(prompt);
+                    outputDiv.innerHTML = resultHtml;
+                    lastPersonaOutput = resultHtml;
+                } catch (error) {
+                    console.error("Error refining persona:", error);
+                    errorDiv.textContent = 'Sorry, an error occurred during refinement. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    loader.classList.add('hidden');
+                }
+            };
+
+            const generatePRMaterial = async () => {
+                const orgInfo = document.getElementById('pr-org-info').value;
+                const contentType = document.getElementById('pr-content-type').value;
+                const tone = document.getElementById('pr-tone').value;
+                const length = document.getElementById('pr-length').value;
+                const button = document.getElementById('generate-pr-button');
+                const loader = document.getElementById('pr-loader');
+                const outputDiv = document.getElementById('pr-output');
+                const errorDiv = document.getElementById('pr-error');
+                const refineContainer = document.getElementById('refine-pr-container');
+
+                if (!orgInfo.trim()) {
+                    errorDiv.textContent = 'Please describe your organization and the key information.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+                
+                button.disabled = true;
+                loader.classList.remove('hidden');
+                outputDiv.innerHTML = 'Your generated PR material will appear here...';
+                errorDiv.classList.add('hidden');
+                refineContainer.classList.add('hidden');
+
+                const prompt = `You are an expert Public Relations professional. Generate a draft for the following PR document.
+                - **Document Type:** ${contentType}
+                - **Organization & Key Information:** ${orgInfo}
+                - **Tone/Style:** ${tone}
+                - **Approximate Length:** ${length || 'standard length for this document type'} words
+
+                Please format the output as clean, professional HTML.`;
+
+                try {
+                    const resultHtml = await callGemini(prompt);
+                    outputDiv.innerHTML = resultHtml;
+                    lastPROutput = resultHtml;
+                    refineContainer.classList.remove('hidden');
+                } catch (error) {
+                    console.error("Error generating PR material:", error);
+                    errorDiv.textContent = 'Sorry, an error occurred. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    loader.classList.add('hidden');
+                }
+            };
+
+            const refinePRMaterial = async () => {
+                const instructions = document.getElementById('refine-pr-input').value;
+                const button = document.getElementById('refine-pr-button');
+                const loader = document.getElementById('pr-loader');
+                const outputDiv = document.getElementById('pr-output');
+                const errorDiv = document.getElementById('pr-error');
+
+                if (!instructions.trim() || !lastPROutput) {
+                    errorDiv.textContent = 'Please provide refinement instructions.';
+                    errorDiv.classList.remove('hidden');
+                    return;
+                }
+
+                button.disabled = true;
+                loader.classList.remove('hidden');
+                errorDiv.classList.add('hidden');
+
+                const prompt = `You are an expert Public Relations professional. Refine the following PR document based on the user's instructions.
+                
+                **Original Document:**
+                ${lastPROutput}
+
+                **User's Instructions:**
+                "${instructions}"
+
+                Generate the new, refined version of the document as clean, professional HTML.`;
+
+                 try {
+                    const resultHtml = await callGemini(prompt);
+                    outputDiv.innerHTML = resultHtml;
+                    lastPROutput = resultHtml;
+                } catch (error) {
+                    console.error("Error refining PR material:", error);
+                    errorDiv.textContent = 'Sorry, an error occurred during refinement. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    loader.classList.add('hidden');
+                }
+            };
+            
+            const generateEthicalScenario = async () => {
+                const button = document.getElementById('scenario-generator-button');
+                const loader = document.getElementById('scenario-loader');
+                const errorDiv = document.getElementById('scenario-error');
+                const container = document.getElementById('ethical-scenarios');
+
+                button.disabled = true;
+                button.querySelector('span').textContent = '✨ Generating...';
+                loader.classList.remove('hidden');
+                errorDiv.classList.add('hidden');
+
+                const prompt = `Generate a new, realistic ethical dilemma a communications, advertising, or PR professional might face when using AI. Base the analysis on these principles: Honesty/Transparency, Fairness/Equity, Privacy/Confidentiality, and Accountability/Expertise.`;
+                const generationConfig = {
+                    responseMimeType: "application/json",
+                    responseSchema: {
+                        type: "OBJECT",
+                        properties: {
+                            title: { type: "STRING" },
+                            dilemma: { type: "STRING" },
+                            analysis: { type: "STRING" }
+                        },
+                        required: ["title", "dilemma", "analysis"]
+                    }
+                };
+                
+                try {
+                    const resultJson = await callGemini(prompt, generationConfig);
+                    const scenario = JSON.parse(resultJson);
+                    const newScenarioElement = createScenarioElement(scenario);
+                    container.appendChild(newScenarioElement);
+                    newScenarioElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                } catch (error) {
+                    console.error("Error generating scenario:", error);
+                    errorDiv.textContent = 'Sorry, could not generate a new scenario. Please try again.';
+                    errorDiv.classList.remove('hidden');
+                } finally {
+                    button.disabled = false;
+                    button.querySelector('span').textContent = '✨ Generate New Scenario';
+                    loader.classList.add('hidden');
+                }
+            };
+
+            // Initial Renders
+            setupNavigation();
+            renderPerceptionChart();
+            renderMLTypes();
+            renderAIModels();
+            renderApplications();
+            renderEthicalPillars();
+            renderEthicalScenarios();
+
+            // Event Listeners for Gemini Features
+            document.getElementById('generate-ad-button').addEventListener('click', generateSocialAd);
+            document.getElementById('generate-persona-button').addEventListener('click', generatePersona);
+            document.getElementById('generate-pr-button').addEventListener('click', generatePRMaterial);
+            document.getElementById('scenario-generator-button').addEventListener('click', generateEthicalScenario);
+            
+            document.getElementById('refine-persona-button').addEventListener('click', refinePersona);
+            document.getElementById('refine-ad-button').addEventListener('click', refineSocialAd);
+            document.getElementById('refine-pr-button').addEventListener('click', refinePRMaterial);
+
+            document.querySelectorAll('.accordion-button').forEach(addAccordionListener);
+        });
+    </script>
+</body>
+</html>
