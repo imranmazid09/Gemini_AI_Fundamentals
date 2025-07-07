@@ -72,12 +72,12 @@
             overflow: hidden;
             transition: max-height 0.5s ease-in-out;
         }
-        .gemini-button {
+        .gemini-button, .reset-button {
             background-color: #4f46e5;
             color: white;
             transition: background-color 0.3s;
         }
-        .gemini-button:hover {
+        .gemini-button:hover, .reset-button:hover {
             background-color: #4338ca;
         }
         .gemini-button:disabled {
@@ -104,8 +104,16 @@
     <header id="header" class="bg-white/80 backdrop-blur-md sticky top-0 z-50 shadow-sm">
         <nav class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
-                <div class="flex-shrink-0">
-                    <h1 class="text-xl md:text-2xl font-bold text-gray-800">AI for Communicators</h1>
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl md:text-2xl font-bold text-gray-800">AI for Communicators</h1>
+                    </div>
+                     <button id="reset-session-button" title="Start New Session" class="ml-4 reset-button p-2 rounded-full flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-counterclockwise" viewBox="0 0 16 16">
+                            <path fill-rule="evenodd" d="M8 3a5 5 0 1 1-4.546 2.914.5.5 0 0 0-.908-.417A6 6 0 1 0 8 2z"/>
+                            <path d="M8 4.466V.534a.25.25 0 0 0-.41-.192L5.23 2.308a.25.25 0 0 0 0 .384l2.36 1.966A.25.25 0 0 0 8 4.466"/>
+                        </svg>
+                    </button>
                 </div>
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
@@ -651,16 +659,15 @@
                         </div>
                     </div>
                 `;
-                // This call was removed in the fix, but we need to re-add it for dynamic elements.
-                // addAccordionListener(item.querySelector('.accordion-button'));
                 return item;
             };
 
             const renderEthicalScenarios = () => {
                 const container = document.getElementById('ethical-scenarios');
-                container.innerHTML = ''; // Clear existing static scenarios to prevent duplication if re-rendered
+                container.innerHTML = ''; 
                 appData.ethicalScenarios.forEach(scenario => {
-                    container.appendChild(createScenarioElement(scenario));
+                    const newEl = createScenarioElement(scenario);
+                    container.appendChild(newEl);
                 });
             };
 
@@ -713,7 +720,7 @@
                 errorDiv.classList.add('hidden');
                 refineContainer.classList.add('hidden');
 
-                const prompt = `You are an expert social media advertiser. Create compelling ad copy for the following scenario. The output should be formatted as simple HTML.
+                const prompt = `You are an expert social media advertiser. Create compelling ad copy for the following scenario. The output should be formatted as simple HTML. Do not include the \`\`\`html markdown specifiers in your response.
                 - **Brand/Product:** ${brandProduct}
                 - **Platform:** ${platform}
                 - **Campaign Objective:** ${objective}
@@ -758,7 +765,7 @@
                 loader.classList.remove('hidden');
                 errorDiv.classList.add('hidden');
 
-                const prompt = `You are an expert social media advertiser. Refine the following ad copy based on the user's instructions.
+                const prompt = `You are an expert social media advertiser. Refine the following ad copy based on the user's instructions. Do not include the \`\`\`html markdown specifiers in your response.
                 
                 **Original Ad Copy:**
                 ${lastAdOutput}
@@ -771,7 +778,7 @@
                  try {
                     const resultHtml = await callGemini(prompt);
                     outputDiv.innerHTML = resultHtml;
-                    lastAdOutput = resultHtml; // Update the last output for further refinement
+                    lastAdOutput = resultHtml;
                 } catch (error) {
                     console.error("Error refining social ad:", error);
                     errorDiv.textContent = 'Sorry, an error occurred during refinement. Please try again.';
@@ -803,7 +810,7 @@
                 errorDiv.classList.add('hidden');
                 refineContainer.classList.add('hidden');
 
-                const prompt = `You are a marketing strategist. Create a detailed audience persona for a campaign. The entire response must be between 100 and 150 words.
+                const prompt = `You are a marketing strategist. Create a detailed audience persona for a campaign. The entire response must be between 100 and 150 words. Do not include the \`\`\`html markdown specifiers in your response.
                 - Product/Brand: ${product}
                 - Target Demographic: ${demographic}
 
@@ -841,7 +848,7 @@
                 loader.classList.remove('hidden');
                 errorDiv.classList.add('hidden');
 
-                const prompt = `You are a marketing strategist. Refine the following audience persona based on the user's instructions. Keep the total length between 100 and 150 words.
+                const prompt = `You are a marketing strategist. Refine the following audience persona based on the user's instructions. Keep the total length between 100 and 150 words. Do not include the \`\`\`html markdown specifiers in your response.
                 
                 **Original Persona:**
                 ${lastPersonaOutput}
@@ -888,7 +895,7 @@
                 errorDiv.classList.add('hidden');
                 refineContainer.classList.add('hidden');
 
-                const prompt = `You are an expert Public Relations professional. Generate a draft for the following PR document.
+                const prompt = `You are an expert Public Relations professional. Generate a draft for the following PR document. Do not include the \`\`\`html markdown specifiers in your response.
                 - **Document Type:** ${contentType}
                 - **Organization & Key Information:** ${orgInfo}
                 - **Tone/Style:** ${tone}
@@ -928,7 +935,7 @@
                 loader.classList.remove('hidden');
                 errorDiv.classList.add('hidden');
 
-                const prompt = `You are an expert Public Relations professional. Refine the following PR document based on the user's instructions.
+                const prompt = `You are an expert Public Relations professional. Refine the following PR document based on the user's instructions. Do not include the \`\`\`html markdown specifiers in your response.
                 
                 **Original Document:**
                 ${lastPROutput}
@@ -982,7 +989,7 @@
                     const scenario = JSON.parse(resultJson);
                     const newScenarioElement = createScenarioElement(scenario);
                     container.appendChild(newScenarioElement);
-                    addAccordionListener(newScenarioElement.querySelector('.accordion-button')); // Add listener to the new element
+                    addAccordionListener(newScenarioElement.querySelector('.accordion-button'));
                     newScenarioElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 } catch (error) {
                     console.error("Error generating scenario:", error);
@@ -993,6 +1000,30 @@
                     button.querySelector('span').textContent = '✨ Generate New Scenario';
                     loader.classList.add('hidden');
                 }
+            };
+
+            const resetSession = () => {
+                // Reset all text inputs and textareas
+                document.querySelectorAll('input[type="text"], textarea').forEach(input => input.value = '');
+
+                // Reset all output divs to their default placeholder text
+                document.getElementById('persona-output').innerHTML = 'Your generated persona will appear here...';
+                document.getElementById('ad-output').innerHTML = 'Your generated ad copy will appear here...';
+                document.getElementById('pr-output').innerHTML = 'Your generated PR material will appear here...';
+
+                // Hide all refine containers
+                document.querySelectorAll('[id^="refine-"]').forEach(container => container.classList.add('hidden'));
+
+                // Hide all error messages
+                document.querySelectorAll('[id$="-error"]').forEach(el => el.classList.add('hidden'));
+                
+                // Reset the ethical scenarios to the original set
+                renderEthicalScenarios();
+                document.querySelectorAll('#ethical-scenarios .accordion-button').forEach(addAccordionListener);
+
+
+                // Scroll to the top of the page
+                window.scrollTo({ top: 0, behavior: 'smooth' });
             };
 
             // Initial Renders
@@ -1013,6 +1044,8 @@
             document.getElementById('refine-persona-button').addEventListener('click', refinePersona);
             document.getElementById('refine-ad-button').addEventListener('click', refineSocialAd);
             document.getElementById('refine-pr-button').addEventListener('click', refinePRMaterial);
+
+            document.getElementById('reset-session-button').addEventListener('click', resetSession);
 
             document.querySelectorAll('.accordion-button').forEach(addAccordionListener);
         });
